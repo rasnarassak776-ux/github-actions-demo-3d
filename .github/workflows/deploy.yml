@@ -18,16 +18,29 @@ jobs:
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
+
           printf '%s\n' "${{ secrets.VM_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+
           ssh-keyscan -H "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts
+
+          echo "Testing SSH connection..."
+
+          ssh -v \
+            -i ~/.ssh/id_ed25519 \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}" \
+            "echo SSH connection successful"
 
       - name: Deploy to Azure VM
         run: |
           rsync -avz --delete \
+            -e "ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
             --exclude='.git' \
             ./ "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/var/www/threed-demo/"
 
       - name: Verify Deployment
         run: |
-          curl --fail http://${{ secrets.VM_HOST }}
+          curl --fail --show-error \
+            "http://${{ secrets.VM_HOST }}"
