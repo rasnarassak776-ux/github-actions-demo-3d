@@ -229,3 +229,5 @@ Key teaching points:
 ---
 
 > This project pairs with the **GitHub Actions chapter guide** — Chapters 03 (syntax), 04 (triggers), 06 (secrets), 08 (deploy), and 09 (self-hosted) all show up in this one demo.
+
+ThankYou>>!
